@@ -16,11 +16,6 @@ const prodLogger = createLogger({
 
 const devLogger = createLogger({
   level: 'debug',
-  format: combine(
-    label({ label: 'dev' }),
-    timestamp(),
-    json()
-  ),
   transports: [
     new transports.File({ filename: 'logs/dev.log' }),
     new transports.Console({
@@ -33,5 +28,6 @@ const devLogger = createLogger({
 })
 
 const logger = process.env.NODE_ENV === 'production' ? prodLogger : devLogger
+logger.info(process.env.NODE_ENV)
 
 export default logger

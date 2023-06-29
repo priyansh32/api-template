@@ -5,7 +5,6 @@ const DEFAULT_VERSION = '1'
 
 const apiVersionExtractor = (req: Request, res: Response, next: NextFunction): void => {
   let versionHeader = req.headers['accept-version']
-  console.log('versionHeader: ', versionHeader)
   if (Array.isArray(versionHeader)) {
     versionHeader = versionHeader[0]
   }

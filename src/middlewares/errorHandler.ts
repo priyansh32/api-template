@@ -1,17 +1,17 @@
 import { type ErrorRequestHandler, type Request, type Response, type NextFunction } from 'express'
-import logger from '../utils/logger'
-import APIError from '../types/APIError'
-import { formatErrorResponse } from '../utils/formatResponse'
+import logger from '@/utils/logger'
+import APIError from '@/utils/APIError'
+import { fe } from '@/utils/formatResponse'
 
 const errorHandler: ErrorRequestHandler = (
   error: APIError | Error,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
-  logger.error('Error: ', error.name, error.message, error.stack)
+  logger.error('Error: ', error)
 
-  const response = formatErrorResponse(error)
+  const response = fe(error)
 
   let status = 500
   if (error instanceof APIError) {

@@ -1,7 +1,11 @@
 import { type NextFunction, type Request, type Response, Router, type RequestHandler } from 'express'
+import APIError from '@/utils/APIError'
+import apiVersionExtractor from '@/middlewares/apiVersionExtractor'
+import logger from '@/utils/logger'
+
+// router for each version
 import v1Router from './v1'
 import v2Router from './v2'
-import APIError from '../types/APIError'
 
 const router = Router()
 
@@ -11,7 +15,8 @@ const ROUTERS: Record<string, RequestHandler> = {
 }
 
 const getRouter = (req: Request, res: Response, next: NextFunction): void => {
-  console.log('req.apiVersion: ', req.apiVersion)
+  logger.debug(`API version: ${req.apiVersion}`)
+  logger.debug(`${req.method} ${req.path}`)
   const versionRouter = ROUTERS[req.apiVersion]
   if (versionRouter !== undefined) {
     versionRouter(req, res, next)
@@ -20,6 +25,7 @@ const getRouter = (req: Request, res: Response, next: NextFunction): void => {
   }
 }
 
+router.use(apiVersionExtractor)
 router.use('/', getRouter)
 
 export default router

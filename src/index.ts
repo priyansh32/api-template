@@ -1,11 +1,11 @@
 import express from 'express'
 
-// services
 import './database'
-import logger from './utils/logger'
-import errorHandler from './middlewares/errorHandler'
-import router from './routes'
-import apiVersionExtractor from './middlewares/apiVersionExtractor'
+import logger from '@/utils/logger'
+import errorHandler from '@/middlewares/errorHandler'
+import routeHandler from '@/routes'
+
+const PORT = (process.env.PORT != null) ? process.env.PORT : 3000
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -16,15 +16,12 @@ declare module 'express-serve-static-core' {
   }
 }
 
-const PORT = (process.env.PORT != null) ? process.env.PORT : 3000
-
 const app = express()
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-app.use(apiVersionExtractor)
-app.use('/', router)
+app.use('/', routeHandler)
 app.use(errorHandler)
 
 app.listen(PORT, () => {
