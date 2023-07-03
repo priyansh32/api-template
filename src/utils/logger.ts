@@ -28,6 +28,5 @@ const devLogger = createLogger({
 })
 
 const logger = process.env.NODE_ENV === 'production' ? prodLogger : devLogger
-logger.info(process.env.NODE_ENV)
 
 export default logger

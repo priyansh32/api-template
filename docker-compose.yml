@@ -1,0 +1,50 @@
+services:
+  app-server:
+    container_name: app-server
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    networks:
+      - opencodelab
+    depends_on:
+      rabbitmq-server:
+        condition: service_healthy
+      database:
+        condition: service_healthy
+  rabbitmq-server:
+    container_name: mq
+    image: rabbitmq:3.12-alpine
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - opencodelab
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 5s
+      timeout: 10s
+      retries: 3
+  database:
+    container_name: db
+    image: mongo:latest
+    volumes:
+      - mongo-data:/data/db
+      - mongo-data:/data/configdb
+    networks:
+      - opencodelab
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  rabbitmq-data:
+  mongo-data:
+
+networks:
+  opencodelab:
+    name: opencodelab
+
+

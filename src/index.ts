@@ -4,6 +4,7 @@ import './database'
 import logger from '@/utils/logger'
 import errorHandler from '@/middlewares/errorHandler'
 import routeHandler from '@/routes'
+import RabbitMQClient from '@/services/rabbitmq/client'
 
 const PORT = (process.env.PORT != null) ? process.env.PORT : 3000
 
@@ -26,4 +27,5 @@ app.use(errorHandler)
 
 app.listen(PORT, () => {
   logger.info(`Listening on port ${PORT}`)
+  void RabbitMQClient.initialize()
 })

@@ -15,7 +15,6 @@ const ROUTERS: Record<string, RequestHandler> = {
 }
 
 const getRouter = (req: Request, res: Response, next: NextFunction): void => {
-  logger.debug(`API version: ${req.apiVersion}`)
   logger.debug(`${req.method} ${req.path}`)
   const versionRouter = ROUTERS[req.apiVersion]
   if (versionRouter !== undefined) {
