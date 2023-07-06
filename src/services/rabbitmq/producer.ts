@@ -1,6 +1,8 @@
-import { type Channel } from 'amqplib'
+import { type ConsumeMessage, type Channel } from 'amqplib'
 import { randomUUID } from 'crypto'
 import type EventEmitter from 'events'
+
+const TIMEOUT = 30000
 
 export interface Code {
   language: string
@@ -14,6 +16,25 @@ export default class Producer {
     private readonly eventEmitter: EventEmitter
   ) { }
 
+  private async _waitForResponse (correlationId: string): Promise<any> {
+    return await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.eventEmitter.removeListener(correlationId, listener)
+        reject(new Error('timeout'))
+      }, TIMEOUT)
+
+      const listener = (message: ConsumeMessage): void => {
+        if (message.properties.correlationId === correlationId) {
+          clearTimeout(timer)
+          this.eventEmitter.removeListener(correlationId, listener)
+          resolve(message.content.toString())
+        }
+      }
+
+      this.eventEmitter.once(correlationId, listener)
+    })
+  }
+
   async produceMessage (data: Code): Promise<any> {
     const queueName = data.language
     const correlationId = randomUUID()
@@ -23,14 +44,10 @@ export default class Producer {
       Buffer.from(JSON.stringify(data)),
       {
         replyTo: this.replyQueueName,
-        correlationId
+        correlationId,
+        expiration: TIMEOUT
       })
 
-    return await new Promise((resolve, reject) => {
-      this.eventEmitter.once(correlationId, (data) => {
-        resolve(data)
-      }
-      )
-    })
+    return await this._waitForResponse(correlationId)
   }
 }

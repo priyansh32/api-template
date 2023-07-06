@@ -26,6 +26,6 @@ app.use('/', routeHandler)
 app.use(errorHandler)
 
 app.listen(PORT, () => {
-  logger.info(`Listening on port ${PORT}`)
+  logger.info(`Listening on PORT ${PORT}`)
   void RabbitMQClient.initialize()
 })
