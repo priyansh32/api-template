@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto'
 import type EventEmitter from 'events'
 
 const TIMEOUT = 30000
+const queueName = 'execution_queue'
 
 export interface Code {
   language: string
@@ -36,7 +37,6 @@ export default class Producer {
   }
 
   async produceMessage (data: Code): Promise<any> {
-    const queueName = data.language
     const correlationId = randomUUID()
 
     this.channel.sendToQueue(
