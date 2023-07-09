@@ -3,7 +3,12 @@ import { randomUUID } from 'crypto'
 import type EventEmitter from 'events'
 
 const TIMEOUT = 30000
-const queueName = 'execution_queue'
+
+// temporary
+const queueMap: Record<string, string> = {
+  javascript: 'node18_16',
+  python: 'python310'
+}
 
 export interface Code {
   language: string
@@ -40,7 +45,7 @@ export default class Producer {
     const correlationId = randomUUID()
 
     this.channel.sendToQueue(
-      queueName,
+      queueMap[data.language],
       Buffer.from(JSON.stringify(data)),
       {
         replyTo: this.replyQueueName,

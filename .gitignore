@@ -1,4 +1,10 @@
 node_modules
 dist
 logs
+
 .env
+
+go.work
+go.work.sum
+
+*.out

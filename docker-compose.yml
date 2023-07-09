@@ -1,3 +1,5 @@
+version: "3"
+
 services:
   app-server:
     container_name: app-server
@@ -13,6 +15,7 @@ services:
         condition: service_healthy
       database:
         condition: service_healthy
+
   rabbitmq-server:
     container_name: mq
     image: rabbitmq:3.12-alpine
@@ -25,6 +28,7 @@ services:
       interval: 5s
       timeout: 10s
       retries: 3
+
   database:
     container_name: db
     image: mongo:latest
@@ -38,6 +42,28 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  python-sandbox:
+    build:
+      dockerfile: Dockerfile._python
+    env_file:
+      - .env
+    networks:
+      - opencodelab
+    depends_on:
+      rabbitmq-server:
+        condition: service_healthy
+
+  node-sandbox:
+    build:
+      dockerfile: Dockerfile._node
+    env_file:
+      - .env
+    networks:
+      - opencodelab
+    depends_on:
+      rabbitmq-server:
+        condition: service_healthy
 
 volumes:
   rabbitmq-data:
