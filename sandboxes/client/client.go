@@ -1,4 +1,4 @@
-package rabbitmq_client
+package client
 
 import (
 	"context"
@@ -7,10 +7,12 @@ import (
 	"log"
 	"os"
 	"sync"
+	"time"
 
 	utils "sandboxes/utils"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/redis/go-redis/v9"
 )
 
 func consumer(conn *amqp.Connection, queueName string, ds chan amqp.Delivery, wg *sync.WaitGroup) {
@@ -75,27 +77,19 @@ func sandboxWorker(ds chan amqp.Delivery, responses chan utils.Response, execute
 	}
 }
 
-func producer(conn *amqp.Connection, responses chan utils.Response, wg *sync.WaitGroup) {
-	ch, err := conn.Channel()
-	utils.FailOnError(err, "Failed to open a channel")
+func redisWorker(responses chan utils.Response, wg *sync.WaitGroup) {
+	client := redis.NewClient(&redis.Options{
+		Addr:     os.Getenv("REDIS_URL"),
+		Password: "",
+		DB:       0,
+	})
 
 	defer wg.Done()
-	defer ch.Close()
+	defer client.Close()
 
 	for response := range responses {
-		err = ch.PublishWithContext(
-			context.Background(),
-			"",               // exchange
-			response.ReplyTo, // routing key
-			false,            // mandatory
-			false,            // immediate
-			amqp.Publishing{
-				ContentType:   "text/plain",
-				CorrelationId: response.CorrelationID,
-				Body:          []byte(response.Body),
-			},
-		)
-		utils.FailOnError(err, "Failed to publish a message")
+		err := client.Set(context.Background(), response.CorrelationID, response.Body, 10*time.Minute).Err()
+		utils.FailOnError(err, "Failed to set response in redis")
 	}
 }
 
@@ -112,7 +106,7 @@ func Initialize(queueName string, executeCode func(string) string) {
 
 	go consumer(conn, queueName, ds, &wq)
 	go sandboxWorker(ds, responses, executeCode, &wq)
-	go producer(conn, responses, &wq)
+	go redisWorker(responses, &wq)
 
 	wq.Wait()
 }

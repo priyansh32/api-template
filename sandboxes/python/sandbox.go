@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"os/exec"
-	"sandboxes/rabbitmq_client"
+	"sandboxes/client"
 	"time"
 )
 
@@ -27,5 +27,5 @@ func executeCode(code string) string {
 }
 
 func main() {
-	rabbitmq_client.Initialize("python310", executeCode)
+	client.Initialize("python310", executeCode)
 }

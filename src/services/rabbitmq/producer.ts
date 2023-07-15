@@ -1,3 +1,4 @@
+import APIError from '@/utils/APIError'
 import { type ConsumeMessage, type Channel } from 'amqplib'
 import { randomUUID } from 'crypto'
 import type EventEmitter from 'events'
@@ -22,6 +23,7 @@ export default class Producer {
     private readonly eventEmitter: EventEmitter
   ) { }
 
+  // unused function - can be removed but let it be
   private async _waitForResponse (correlationId: string): Promise<any> {
     return await new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -44,6 +46,11 @@ export default class Producer {
   async produceMessage (data: Code): Promise<any> {
     const correlationId = randomUUID()
 
+    const queueName = queueMap[data.language]
+    if (queueName == null || queueName === undefined) {
+      throw new APIError(400, 'Invalid or unsupported language')
+    }
+
     this.channel.sendToQueue(
       queueMap[data.language],
       Buffer.from(JSON.stringify(data)),
@@ -53,6 +60,6 @@ export default class Producer {
         expiration: TIMEOUT
       })
 
-    return await this._waitForResponse(correlationId)
+    return correlationId
   }
 }

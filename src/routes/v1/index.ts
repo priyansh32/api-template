@@ -11,8 +11,8 @@ v1Router.get('/', (req: Request, res: Response) => {
 )
 
 v1Router.post('/producer', catchAsync(async (req: Request, res: Response) => {
-  const result = await RabbitMQClient.produce(req.body)
-  res.status(200).send(fr({ message: 'Execution Successful', result }))
+  const executionID = await RabbitMQClient.produce(req.body)
+  res.status(200).send(fr({ message: 'Pushed to queue', executionID }))
 })
 )
 
