@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
   nginx:
@@ -36,8 +36,8 @@ services:
     healthcheck:
       test: redis-cli ping
       interval: 5s
-      timeout: 10s
-      retries: 3
+      timeout: 5s
+      retries: 12
   polling-server:
     build:
       context: ./polling-server
@@ -57,7 +57,7 @@ services:
     networks:
       - opencodelab
     healthcheck:
-      test: rabbitmq-diagnostics -q ping
+      test: rabbitmq-diagnostics check_running
       interval: 5s
       timeout: 10s
       retries: 3
