@@ -2,10 +2,11 @@ import { fr } from '@/utils/formatResponse'
 import { type Request, type Response, Router } from 'express'
 import RabbitMQClient from '@/services/rabbitmq/client'
 import catchAsync from '@/utils/catchAsync'
+import authHandler from '@/middlewares/auth'
 
 const v1Router = Router()
 
-v1Router.get('/', (req: Request, res: Response) => {
+v1Router.get('/', authHandler, (req: Request, res: Response) => {
   res.status(200).send(fr({ message: 'Hello, world 1!', apiVersion: req.apiVersion }))
 }
 )

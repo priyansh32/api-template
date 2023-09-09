@@ -1,6 +1,6 @@
 import express from 'express'
 
-import './database'
+// import './database'
 import logger from '@/utils/logger'
 import errorHandler from '@/middlewares/errorHandler'
 import routeHandler from '@/routes'
